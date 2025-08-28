@@ -40,11 +40,16 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-app.get('/', authenticateToken, (req, res) => {
+app.get('/', (req, res) => {
     res.json({ message: 'Hello world!!!' });
 });
 
 // Protected Route
 app.get('/protected', authenticateToken, (req, res) => {
     res.json({ message: 'Protected route accessed successfully' });
+});
+
+
+app.listen(8080, () => {
+    console.log(`Example app listening at http://localhost:8080`);
 });
