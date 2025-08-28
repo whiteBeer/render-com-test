@@ -11,7 +11,7 @@ const secretKey = 'your-secret-key';
 // Mock User Database
 const users = [
     { id: 1, username: 'user1', password: 'password1' },
-    { id: 2, username: 'user2', password: 'password2' },
+    { id: 2, username: 'user2', password: 'password2' }
 ];
 
 app.use(express.json());
@@ -53,5 +53,5 @@ app.get('/protected', authenticateToken, (req, res) => {
 
 
 app.listen(8080, () => {
-    console.log(`Example app listening at http://localhost:8080`);
+    console.log('Example app listening at http://localhost:8080');
 });
