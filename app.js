@@ -14,6 +14,8 @@ const users = [
     { id: 2, username: 'user2', password: 'password2' },
 ];
 
+app.use(express.json());
+
 // Route to Authenticate User and Generate JWT
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
