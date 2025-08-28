@@ -2,7 +2,9 @@
   "name": "test",
   "version": "0.0.5",
   "sourceType": "module",
-  "scripts": {},
+  "scripts": {
+    "start": "node app.js"
+  },
   "dependencies": {
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2"
