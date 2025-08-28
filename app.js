@@ -41,7 +41,7 @@ const authenticateToken = (req, res, next) => {
 };
 
 app.get('/', authenticateToken, (req, res) => {
-    res.json({ message: 'Hello world!' });
+    res.json({ message: 'Hello world!!' });
 });
 
 // Protected Route
