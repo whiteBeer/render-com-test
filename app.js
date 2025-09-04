@@ -9,13 +9,10 @@ const notFoundMiddleware = require("./middleware/not-found");
 const authMiddleware = require("./middleware/auth");
 const {UnauthenticatedError, BadRequestError} = require("./errors");
 
-const app = express();
+const connectDB = require("./db/connect");
+const User = require("./models/user");
 
-// Mock User Database
-const users = [
-    { id: 1, username: "user1", password: "password1" },
-    { id: 2, username: "user2", password: "password2" }
-];
+const app = express();
 
 app.use(express.json());
 
@@ -25,7 +22,10 @@ app.post("/login", async (req, res, next) => {
     if (!username || !password) {
         throw new BadRequestError("Please provide email and password");
     }
-    const user = users.find(el => el.username === username && el.password === password);
+    const user = await User.findOne({
+        username: username,
+        password: password
+    });
 
     if (user) {
         jwt.sign({userId: user.id}, process.env.JWT_SECRET, {
@@ -43,8 +43,9 @@ app.post("/login", async (req, res, next) => {
     }
 });
 
-app.get("/", (req, res) => {
-    res.json({ message: "Hello world!!!" });
+app.get("/", async (req, res) => {
+    const users = await User.find({}).limit(10);
+    res.json(users);
 });
 
 // Protected Route
@@ -55,7 +56,15 @@ app.get("/protected", authMiddleware, (req, res) => {
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
+const start = async () => {
+    const port = 8080;
+    try {
+        // connectDB
+        await connectDB(process.env.MONGO_URI);
+        app.listen(port, () => console.log(`Server is listening port ${port}...`));
+    } catch (error) {
+        console.log(error);
+    }
+};
 
-app.listen(8080, () => {
-    console.log("Example app listening at http://localhost:8080");
-});
+start();
