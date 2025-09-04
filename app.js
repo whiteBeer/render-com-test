@@ -27,8 +27,8 @@ app.post("/login", async (req, res, next) => {
         password: password
     });
 
-    if (user) {
-        jwt.sign({userId: user.id}, process.env.JWT_SECRET, {
+    if (user && user._id) {
+        jwt.sign({userId: user._id.toString()}, process.env.JWT_SECRET, {
             algorithm: "HS256",
             expiresIn: "30d"
         }, (err, token) => {
