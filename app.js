@@ -1,57 +1,61 @@
-// Required Libraries
-const express = require('express');
-const jwt = require('jsonwebtoken');
+require("dotenv").config();
+require("express-async-errors");
 
-// Create Express App
+const express = require("express");
+const jwt = require("jsonwebtoken");
+
+const errorHandlerMiddleware = require("./middleware/error-handler");
+const notFoundMiddleware = require("./middleware/not-found");
+const authMiddleware = require("./middleware/auth");
+const {UnauthenticatedError, BadRequestError} = require("./errors");
+
 const app = express();
-
-// Secret Key for JWT Signing
-const secretKey = 'your-secret-key';
 
 // Mock User Database
 const users = [
-    { id: 1, username: 'user1', password: 'password1' },
-    { id: 2, username: 'user2', password: 'password2' }
+    { id: 1, username: "user1", password: "password1" },
+    { id: 2, username: "user2", password: "password2" }
 ];
 
 app.use(express.json());
 
 // Route to Authenticate User and Generate JWT
-app.post('/login', (req, res) => {
+app.post("/login", async (req, res, next) => {
     const { username, password } = req.body;
+    if (!username || !password) {
+        throw new BadRequestError("Please provide email and password");
+    }
     const user = users.find(el => el.username === username && el.password === password);
 
     if (user) {
-        // Generate JWT with user ID
-        const token = jwt.sign({ userId: user.id }, secretKey);
-        res.json({ token });
+        jwt.sign({userId: user.id}, process.env.JWT_SECRET, {
+            algorithm: "HS256",
+            expiresIn: "30d"
+        }, (err, token) => {
+            if (err || !token) {
+                //TODO: how to use with throw?
+                next(new UnauthenticatedError("Token sign error"));
+            }
+            res.json({token});
+        });
     } else {
-        res.status(401).json({ message: 'Invalid credentials' });
+        throw new UnauthenticatedError("Invalid credentials");
     }
 });
 
-// Middleware to Authenticate Requests
-const authenticateToken = (req, res, next) => {
-    const token = req.headers['authorization'];
-    if (!token) return res.status(401).json({ message: 'Unauthorized' });
-
-    jwt.verify(token, secretKey, (err, user) => {
-        if (err) return res.status(403).json({ message: 'Invalid token' });
-        req.user = user;
-        next();
-    });
-};
-
-app.get('/', (req, res) => {
-    res.json({ message: 'Hello world!!!' });
+app.get("/", (req, res) => {
+    res.json({ message: "Hello world!!!" });
 });
 
 // Protected Route
-app.get('/protected', authenticateToken, (req, res) => {
-    res.json({ message: 'Protected route accessed successfully' });
+app.get("/protected", authMiddleware, (req, res) => {
+    res.json({ message: "Protected route accessed successfully" });
 });
+
+app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);
 
 
 app.listen(8080, () => {
-    console.log('Example app listening at http://localhost:8080');
+    console.log("Example app listening at http://localhost:8080");
 });

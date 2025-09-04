@@ -3,13 +3,17 @@
   "version": "0.0.5",
   "sourceType": "module",
   "scripts": {
-    "start": "node app.js"
+    "start": "nodemon app.js"
   },
   "dependencies": {
-    "express": "^5.1.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "http-status-codes": "^2.1.4",
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
-    "eslint": "^9.34.0"
+    "eslint": "^9.34.0",
+    "nodemon": "^3.1.10"
   }
 }
